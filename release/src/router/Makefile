@@ -574,7 +574,7 @@ endif
 
 #add for snmpd
 SNMPD_CFLAGS += -D$(BUILD_NAME)
-ifeq ($(BUILD_NAME), $(filter $(BUILD_NAME), RT-N66U RT-AC66U RT-AC68U))
+ifeq ($(BUILD_NAME), $(filter $(BUILD_NAME), RT-N66U RT-AC66U RT-AC68U R6300_V2))
 SNMPD_CFLAGS += -DDUAL_BAND
 endif
 obj-$(RTCONFIG_SNMPD) += openssl

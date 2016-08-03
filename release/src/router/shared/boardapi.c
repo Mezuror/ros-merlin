@@ -249,6 +249,8 @@ int set_pwr_usb(int boolOn){
 			    (nvram_get_double("HW_ver") != 2.20))
 				return 0;
 			break;
+		case MODEL_R6300V2:
+			break;
 	}
 
 	if((gpio_pin = (use_gpio = nvram_get_int("pwr_usb_gpio"))&0xff) != 0xff){
@@ -562,7 +564,7 @@ int led_control_atomic(int which, int mode)
 					eval("wl", "-i", "eth1", "ledbh", "3", "7");
 				else if (mode == LED_OFF)
 					eval("wl", "-i", "eth1", "ledbh", "3", "0");
-			} else if ((model == MODEL_RTAC68U) || (model == MODEL_RTAC87U) || (model == MODEL_RTAC3200)) {
+			} else if ((model == MODEL_R6300V2) || (model == MODEL_RTAC68U) || (model == MODEL_RTAC87U) || (model == MODEL_RTAC3200)) {
 				if (mode == LED_ON)
 					eval("wl", "ledbh", "10", "7");
 				else if (mode == LED_OFF)
@@ -575,7 +577,7 @@ int led_control_atomic(int which, int mode)
 			}
 			break;
 		case LED_5G_FORCED:
-			if ((model == MODEL_RTAC68U) || (model == MODEL_RTAC3200)) {
+			if ((model == MODEL_R6300V2) ||(model == MODEL_RTAC68U) || (model == MODEL_RTAC3200)) {
 				if (mode == LED_ON) {
 					nvram_set("led_5g", "1");
 		                        eval("wl", "-i", "eth2", "ledbh", "10", "7");

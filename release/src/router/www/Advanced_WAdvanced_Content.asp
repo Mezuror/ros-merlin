@@ -248,12 +248,12 @@ function initial(){
 	inputCtrl(document.form.traffic_5g, 0);
 
 	if('<% nvram_get("wl_unit"); %>' == '1' || '<% nvram_get("wl_unit"); %>' == '2'){ // 5GHz up
-		if(	based_modelid == "RT-AC3200" || based_modelid == "RT-AC69U" ||
+		if(	based_modelid == "R6300_V2" ||based_modelid == "RT-AC3200" || based_modelid == "RT-AC69U" ||  
 			based_modelid == "RT-AC56S" || based_modelid == "RT-AC56U" ||
 			based_modelid == "RT-AC68U" || based_modelid == "RT-AC68U_V2" || based_modelid == "DSL-AC68U" ||
 			based_modelid == "RT-AC87U" || based_modelid == "EA-AC87" ||
 			based_modelid == "RT-AC88U" || based_modelid == "RT-AC3100" || 
-			based_modelid == "RT-AC5300" || based_modelid == "RT-AC5300R")
+			based_modelid == "RT-AC5300" || based_modelid == "RT-AC5300R") 
 		{
 			document.getElementById('wl_txbf_desc').innerHTML = "802.11ac Beamforming";
 			inputCtrl(document.form.wl_txbf, 1);
@@ -292,7 +292,8 @@ function initial(){
 			inputCtrl(document.form.usb_usb3, 1);
 		}
 
-		if(	based_modelid == "RT-AC3200" ||
+		if(	based_modelid == "R6300_V2" || 
+			based_modelid == "RT-AC3200" ||
 			based_modelid == "RT-N18U" ||
 			based_modelid == "RT-AC69U" ||
 			based_modelid == "RT-AC87U" ||
@@ -387,7 +388,7 @@ function initial(){
 	}
 	
 	/*Airtime fairness, only for Broadcom ARM platform, except RT-AC87U 5 GHz*/
-	if(	based_modelid == "RT-N18U" ||
+	if(	based_modelid == "R6300_V2") ||based_modelid == "RT-N18U" ||
 		based_modelid == "RT-AC56U" || based_modelid == "RT-AC56S" ||
 		based_modelid == "RT-AC68U" || based_modelid == "RT-AC68U_V2" || based_modelid == "DSL-AC68U" ||
 		based_modelid == "RT-AC69U" || based_modelid == "RT-AC87U" || based_modelid == "RT-AC3200" ||

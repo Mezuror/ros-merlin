@@ -707,7 +707,7 @@ void generate_switch_para(void)
 			break;
 		}
 
-
+		case MODEL_R6300V2:
 		case MODEL_RPAC68U:						/* 0  1  2  3  4 */
 		case MODEL_RTAC68U:						/* 0  1  2  3  4 */
 		case MODEL_RTN18U:						/* 0  1  2  3  4 */
@@ -1766,6 +1766,7 @@ reset_mssid_hwaddr(int unit)
 			case MODEL_RTAC66U:
 				snprintf(macaddr_str, sizeof(macaddr_str), "pci/%d/1/macaddr", unit + 1);
 				break;
+			case MODEL_R6300V2:
 			case MODEL_RTN18U:
 			case MODEL_RPAC68U:
 			case MODEL_RTAC68U:
@@ -1998,6 +1999,7 @@ void init_wl(void)
 #endif
 #ifdef RTCONFIG_BCMWL6
 	switch(get_model()) {
+		case MODEL_R6300V2:
 		case MODEL_DSLAC68U:
 		case MODEL_RTAC1200G:
 		case MODEL_RTAC1200GP:
@@ -2013,7 +2015,7 @@ void init_wl(void)
 	}
 #endif
 	check_wl_country();
-#if defined(RTAC3200) || defined(RTAC68U) || defined(RTAC5300) || defined(RTAC5300R) || defined(RTAC88U) || defined(RTAC3100)
+#if defined(R6300V2) || defined(RTAC3200) || defined(RTAC68U) || defined(RTAC5300) || defined(RTAC5300R) || defined(RTAC88U) || defined(RTAC3100)
 	wl_disband5grp();
 #endif
 	set_wltxpower();
@@ -2119,6 +2121,7 @@ void init_wl_compact(void)
 #endif
 #ifdef RTCONFIG_BCMWL6
 	switch(model) {
+		case MODEL_R6300V2:
 		case MODEL_DSLAC68U:
 		case MODEL_RTAC1200G:
 		case MODEL_RTAC1200GP:
@@ -2135,7 +2138,8 @@ void init_wl_compact(void)
 #endif
 	check_wl_country();
 #ifndef RTCONFIG_BRCM_USBAP
-	if ((model == MODEL_DSLAC68U) ||
+	if ((model == MODEL_R6300V2) ||
+		(model == MODEL_DSLAC68U) ||
 		(model == MODEL_RPAC68U) ||
 		(model == MODEL_RTAC1200G) ||
 		(model == MODEL_RTAC1200GP) ||
@@ -2151,7 +2155,7 @@ void init_wl_compact(void)
 		(model == MODEL_RTN12HP_B1) ||
 		(model == MODEL_RTN18U) ||
 		(model == MODEL_RTN66U)) {
-#if defined(RTAC3200) || defined(RTAC68U) || defined(RTAC5300) || defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC3200) || defined(RTAC68U) || defined(RTAC5300) || defined(RTAC5300R)
 		wl_disband5grp();
 #endif
 		set_wltxpower();
@@ -2183,7 +2187,8 @@ void fini_wl(void)
 #endif
 
 #ifndef RTCONFIG_BRCM_USBAP
-	if ((model == MODEL_DSLAC68U) ||
+	if ((model == MODEL_R6300V2) ||
+		(model == MODEL_DSLAC68U) ||
 		(model == MODEL_RPAC68U) ||
 		(model == MODEL_RTAC1200G) ||
 		(model == MODEL_RTAC1200GP) ||
@@ -2311,7 +2316,8 @@ void init_syspara(void)
 			nvram_set("0:macaddr", nvram_safe_get("et1macaddr"));
 			nvram_set("LANMACADDR", nvram_safe_get("et1macaddr"));
 			break;
-
+			
+		case MODEL_R6300V2:
 		case MODEL_DSLAC68U:
 		case MODEL_RPAC68U:
 		case MODEL_RTAC68U:
@@ -2523,6 +2529,10 @@ void init_others(void)
 #ifdef RTAC68U
 	update_cfe();
 #endif
+#ifdef R6300V2
+	update_cfe();
+#endif
+
 #ifdef RTAC3200
 	update_cfe_ac3200();
 #endif
@@ -4294,6 +4304,7 @@ _dprintf("*** Multicast IPTV: config Singtel TR069 on wan port ***\n");
 		break;
 
 				/* P0  P1 P2 P3 P4 P5 */
+	case MODEL_R6300V2:
 	case MODEL_RTAC68U:	/* WAN L1 L2 L3 L4 CPU */
 	case MODEL_RTN18U:	/* WAN L1 L2 L3 L4 CPU */
 		if (wan_vid) { /* config wan port */
@@ -6315,7 +6326,7 @@ unsigned int convert_vlan_entry(int tag_enable, int portset, char *tag_reg_val)
 	}
 	/* P0  P1 P2 P3 P4 */
 	/* WAN L1 L2 L3 L4 */
-	else if (model == MODEL_RTAC68U || model == MODEL_RTN18U ||
+	else if (model == MODEL_R6300V2 || model == MODEL_RTAC68U || model == MODEL_RTN18U ||
 		model == MODEL_RTN66U || model == MODEL_RTAC66U || 
 		model == MODEL_DSLAC68U) {
 		port_shift_bit[0] = 1;
@@ -6513,7 +6524,7 @@ void set_port_based_vlan_config(char *interface)
 				/* Port mapping of the switch for MODEL_DSLAC68U */
 				/* P0  P1 P2 P3 P4 P5 */
 				/* WAN L1 L2 L3 L4 CPU */
-				if (model == MODEL_RTN16 || 
+				if (model == MODEL_R6300V2 || model == MODEL_RTN16 || 
 					model == MODEL_RTAC68U || model == MODEL_RTN18U || 
 					model == MODEL_RTAC87U || 
 					model == MODEL_RTAC56S || model == MODEL_RTAC56U || 
@@ -6527,7 +6538,7 @@ void set_port_based_vlan_config(char *interface)
 					int cpu_port = 0;*/
 
 					/* Decide cpu port by model */
-					if (model == MODEL_RTAC68U || model == MODEL_RTN18U || 
+					if (model == MODEL_R6300V2 || model == MODEL_RTAC68U || model == MODEL_RTN18U || 
 						model == MODEL_RTAC56S || model == MODEL_RTAC56U || 
 						model == MODEL_DSLAC68U)
 						cpu_port = 5;

@@ -11,6 +11,10 @@ ifeq ($(BUILD_NAME), RT-AC3200)
 	install lld2d.rtac3200 $(INSTALLDIR)/usr/sbin/lld2d
 	install icon.rtac3200.ico $(INSTALLDIR)/usr/sbin/icon.ico
 	install icon.large.rtac3200.ico $(INSTALLDIR)/usr/sbin/icon.large.ico
+else ifeq ($(BUILD_NAME), R6300_V2)
+	install lld2d.r6300v2 $(INSTALLDIR)/usr/sbin/lld2d.r6300v2
+	install icon.rtac68u.ico $(INSTALLDIR)/usr/sbin/icon.ico
+	install icon.large.rtac68u.ico $(INSTALLDIR)/usr/sbin/icon.large.ico
 else ifeq ($(BUILD_NAME), RT-AC56U)
 	install lld2d.rtac56u $(INSTALLDIR)/usr/sbin/lld2d
 	install icon.rtac56u.ico $(INSTALLDIR)/usr/sbin/icon.ico

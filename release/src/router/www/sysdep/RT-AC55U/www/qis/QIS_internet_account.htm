@@ -69,7 +69,8 @@ function QKaccount_load_body(){
 	if(!document.getElementById('vpn_client_check').checked)
 		document.form.wan_proto.value = "pppoe";
 
-	if( parent.based_modelid != "RT-AC3200" &&
+	if( parent.based_modelid != "R6300_V2" &&
+		parent.based_modelid != "RT-AC3200" &&
 		parent.based_modelid != "RT-AC87U" && 
 		parent.based_modelid != "RT-AC68U" &&
 		parent.based_modelid != "RT-AC66U" &&
@@ -81,7 +82,8 @@ function QKaccount_load_body(){
 		document.getElementById('vodafoneOption').outerHTML = "";
 	}
 	
-	if( parent.based_modelid != "RT-AC5300" &&
+	if( parent.based_modelid != "R6300_V2" &&
+		parent.based_modelid != "RT-AC5300" &&
 		parent.based_modelid != "RT-AC3200" &&
 		parent.based_modelid != "RT-AC3100" &&
 		parent.based_modelid != "RT-AC88U" &&

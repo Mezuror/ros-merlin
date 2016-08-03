@@ -4,6 +4,10 @@
 ; EN must be the first one
 ;
 [MODEL]
+R6300_V2
+EN,CN
+
+[MODEL]
 RT-AC3200
 EN,BR,CN,CZ,DA,DE,ES,FI,FR,HU,IT,JP,KR,MS,NO,PL,RO,RU,SV,TH,TR,TW,UK
 

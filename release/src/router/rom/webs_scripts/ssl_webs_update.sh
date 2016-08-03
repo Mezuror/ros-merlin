@@ -28,7 +28,7 @@ model_31="0"
 model_30="0"
 if [ "$model" == "RT-N18U#" ]; then
 	model_31="1"
-elif [ "$model" == "RT-AC68U#" ] || [ "$model" == "RT-AC56S#" ] || [ "$model" == "RT-AC56U#" ]; then
+elif [ "$model" == "R6300_V2#" ] || [ "$model" == "RT-AC68U#" ] || [ "$model" == "RT-AC56S#" ] || [ "$model" == "RT-AC56U#" ]; then
 	model_30="1"	#Use another info after middle firmware
 fi
 

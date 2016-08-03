@@ -114,6 +114,10 @@ else ifeq ($(PATYPE), 5003)
 endif
 endif
 
+ifeq ($(R6300V2), 1)
+	CFE_BIN_FILE := cfe_r6300_v2.bin
+endif
+
 all: cfez.bin
 
 # Don't build dependencies, this may die if $(CC) isn't gcc
@@ -176,9 +180,20 @@ ifeq ($(BUILD_NAME), RP-AC68U)
 		../../../../../ctools/nvserial -i cfez.bin -o cfe_rp-ac68u.bin -s 00 rp-ac68u_nvram.txt
 		cp cfe_rp-ac68u.bin ../../../..
 endif
+ifeq ($(R6300V2), 1)
+		../../../../../ctools/nvserial -i cfez.bin -o cfe_r6300_v2.bin -s 00 r6300_v2_nvram.txt
+		cp cfe_r6300_v2.bin ../../../..
+endif
 endif
 endif
 
+ifeq ($(R6300V2), 1)
+	@if [ "$(CFEZ_MAXSIZE)" != "" ]; then \
+		if [ "`wc -c < $(CFE_BIN_FILE)`" -gt "$(CFEZ_MAXSIZE)" ]; then \
+			echo "*** ERROR *** : cfe_r6300_v2.bin bootrom image size: `wc -c < cfe_r6300_v2.bin` exceeds limit: $(CFEZ_MAXSIZE)"; \
+		fi ; \
+	fi
+else
 ifeq ($(DSLAC68U), 1)
 	@if [ "$(CFEZ_MAXSIZE)" != "" ]; then \
 		if [ "`wc -c < cfe_dsl-ac68u.bin`" -gt "$(CFEZ_MAXSIZE)" ]; then \

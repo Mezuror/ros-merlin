@@ -3036,6 +3036,7 @@ static void led_bh_prep(int post)
 #endif
 			}
 			break;
+		case MODEL_R6300V2:
 		case MODEL_RTAC3200:
 		case MODEL_DSLAC68U:
 		case MODEL_RPAC68U:

@@ -104,7 +104,7 @@ function initial() {
 	if (document.form.usb_idle_exclude.value.indexOf("i") != -1)
 		document.form.usb_idle_exclude_i.checked = true;
 
-	if ((productid == "RT-AC56U") || (productid == "RT-AC68U") || (productid == "RT-AC87U") ||
+	if ((productid == "R6300_V2") || (productid == "RT-AC56U") || (productid == "RT-AC68U") || (productid == "RT-AC87U") ||
 	    (productid == "RT-AC3200") || (productid == "RT-AC88U") || (productid == "RT-AC3100") || (productid == "RT-AC5300")) {
 		document.getElementById("ct_established_default").innerHTML = "Default: 2400";
 		showhide("memory_mgmt_tr" ,1);

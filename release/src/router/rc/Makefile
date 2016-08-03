@@ -155,6 +155,9 @@ OBJS += init-broadcom.o wps-broadcom.o broadcom.o ate-broadcom.o
 ifeq ($(BUILD_NAME), RT-AC68U)
 OBJS += cfe.o
 endif
+ifeq ($(BUILD_NAME), R6300_V2)
+OBJS += cfe.o
+endif
 ifeq ($(RTCONFIG_DSL),y)
 OBJS += init-broadcom-dsl.o
 endif
@@ -659,6 +662,12 @@ ate.o:
 	@-cp -f ./prebuild/ate.o .
 endif
 ifeq ($(BUILD_NAME), RT-AC68U)
+ifneq ($(wildcard ./prebuild/cfe.o),)
+cfe.o:
+	@-cp -f ./prebuild/cfe.o .
+endif
+endif
+ifeq ($(BUILD_NAME), R6300_V2)
 ifneq ($(wildcard ./prebuild/cfe.o),)
 cfe.o:
 	@-cp -f ./prebuild/cfe.o .

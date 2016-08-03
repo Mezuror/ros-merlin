@@ -2854,7 +2854,7 @@ stop_misc(void)
 		killall_tk("sw_devled");
 #endif
 	if (pids("watchdog")
-#if defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
 		&& !nvram_get_int("auto_upgrade")
 #endif
 	)
@@ -3479,6 +3479,10 @@ int start_lltd(void)
 	if (strlen(odmpid) && is_valid_hostname(odmpid))
 	{
 		switch (model) {
+		case MODEL_R6300V2:
+			if (!strcmp(odmpid, "NETGEAR"))
+				eval("lld2d.r6300v2", "br0");
+			break;
 		case MODEL_RTN66U:
 			eval("lld2d.rtn66r", "br0");
 			break;
@@ -3538,6 +3542,10 @@ void stop_lltd(void)
 	if (strlen(odmpid) && is_valid_hostname(odmpid))
 	{
 		switch (model) {
+		case MODEL_R6300V2:
+			if (!strcmp(odmpid, "NETGEAR"))
+				killall_tk("lld2d.r6300v2");
+			break;
 		case MODEL_RTN66U:
 			killall_tk("lld2d.rtn66r");
 			break;
@@ -5647,6 +5655,7 @@ check_ddr_done:
 #endif
 	else if (strcmp(script, "set_wltxpower") == 0) {
 		switch (get_model()) {
+		case MODEL_R6300V2:
 		case MODEL_RTAC66U:
 		case MODEL_RTAC56S:
 		case MODEL_RTAC56U:
@@ -7861,7 +7870,7 @@ void setup_leds()
 	model = get_model();
 
 	if (nvram_get_int("led_disable") == 1) {
-		if ((model == MODEL_RTAC56U) || (model == MODEL_RTAC56S) || (model == MODEL_RTAC68U) || (model == MODEL_RTAC87U) || (model == MODEL_RTAC3200) || (model == MODEL_RTAC88U) || (model == MODEL_RTAC3100) || (model == MODEL_RTAC5300)) {
+		if ((model == MODEL_R6300V2) || (model == MODEL_RTAC56U) || (model == MODEL_RTAC56S) || (model == MODEL_RTAC68U) || (model == MODEL_RTAC87U) || (model == MODEL_RTAC3200) || (model == MODEL_RTAC88U) || (model == MODEL_RTAC3100) || (model == MODEL_RTAC5300)) {
 			setAllLedOff();
 			if (model == MODEL_RTAC87U)
 				led_control_atomic(LED_5G, LED_OFF);

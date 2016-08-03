@@ -327,7 +327,7 @@ var reboot_schedule_support = isSupport("reboot_schedule");
 var noiptv_support = isSupport("noiptv");
 var app_support = false;
 
-if( based_modelid == "RT-AC5300" || based_modelid == "RT-AC5300R" || based_modelid == "RT-AC3100" || based_modelid == "RT-AC88U"
+if( based_modelid == "R6300_V2" ||based_modelid == "RT-AC5300" || based_modelid == "RT-AC5300R" || based_modelid == "RT-AC3100" || based_modelid == "RT-AC88U"
  || based_modelid == "RT-AC3200"
  || based_modelid == "RT-AC87U" || based_modelid == "RT-AC87R"
  ||based_modelid == "RT-AC68U" || based_modelid == "RT-AC68R" || based_modelid == "RT-AC68P" || based_modelid == "RT-AC68W"

@@ -164,7 +164,7 @@ reset_release_wait(void)
 int
 BCMINITFN(nvram_wsgpio_init)(void *si)
 {
-#if defined(RTAC68U) || defined(DSLAC68U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(DSLAC68U)
 	int gpio = 5;
 #else
 	int gpio = 7;
@@ -194,7 +194,7 @@ detect_turbo_button(void)
 
 	/* active low */
 	gpiomask = (uint32)1 << gpio;
-#if defined(RTAC68U) || defined(DSLAC68U)	// active high
+#if defined(R6300V2) || defined(RTAC68U) || defined(DSLAC68U)	// active high
 	if ((si_gpioin(sih) & gpiomask))
 #else
 	if (!(si_gpioin(sih) & gpiomask))

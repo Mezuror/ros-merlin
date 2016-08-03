@@ -312,7 +312,7 @@ virtual_radio_restore_defaults(void)
 void
 misc_ioctrl(void)
 {
-#if defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC5300) || defined(RTAC5300R) || defined(RTAC88U) || defined(RTAC3100)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC5300) || defined(RTAC5300R) || defined(RTAC88U) || defined(RTAC3100)
 	/* default WAN_RED on  */
 	char buf[16];
 
@@ -1046,6 +1046,7 @@ misc_defaults(int restore_defaults)
 			nvram_set("reboot_time", "80");
 
 			break;
+		case MODEL_R6300V2:
 		case MODEL_RPAC68U:
 		case MODEL_RTAC68U:
 #ifdef RTCONFIG_DUAL_TRX
@@ -1137,7 +1138,7 @@ misc_defaults(int restore_defaults)
 	nvram_unset("qtn_ready");
 #endif
 	nvram_set("mfp_ip_requeue", "");
-#if defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
 	nvram_set_int("auto_upgrade", 0);
 	nvram_unset("fw_check_period");
 #endif
@@ -4162,7 +4163,8 @@ int init_nvram(void)
 		break;
 #endif
 
-#ifdef RTAC68U
+#if defined(R6300V2) || defined(RTAC68U)
+	case MODEL_R6300V2:
 	case MODEL_RTAC68U:
 		check_cfe_ac68u();
 		nvram_set("vlan1hwname", "et0");

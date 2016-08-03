@@ -281,7 +281,8 @@ GetPhyStatus(int verbose)
 		/* WAN L1 L2 L3 L4 */
 		ports[0]=0; ports[1]=5; ports[2]=3; ports[3]=2; ports[4]=1;
 		break;
-
+		
+	case MODEL_R6300V2:
 	case MODEL_DSLAC68U:
 	case MODEL_RPAC68U:
 	case MODEL_RTAC68U:
@@ -489,6 +490,7 @@ setAllLedOn(void)
 			eval("wl", "-i", "eth2", "ledbh", "9", "1");	// wl 5G
 			eval("wl", "-i", "eth2", "ledbh", "10", "1");	// wl 5G
 			break;
+		case MODEL_R6300V2:
 		case MODEL_RTAC68U:
 		case MODEL_RTAC3200:
 		case MODEL_RTAC5300:
@@ -496,7 +498,7 @@ setAllLedOn(void)
 		case MODEL_RTAC88U:
 		case MODEL_RTAC3100:
 		{
-#if defined(RTAC68U) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
 			led_control(LED_USB, LED_ON);
 			led_control(LED_USB3, LED_ON);
 #endif
@@ -535,6 +537,13 @@ setAllLedOn(void)
 			if (!strcmp(get_productid(), "RT-AC66U V2"))
 			led_control(LED_WAN, LED_ON);
 #endif
+#ifdef R6300V2
+						 /* 4360's fake 5g led */
+						led_control(LED_5G, LED_ON);
+						//if (!strcmp(get_productid(), "RT-AC66U V2"))
+						//led_control(LED_WAN, LED_ON);
+#endif
+
 			break;
 		}
 		case MODEL_RTAC56S:
@@ -691,6 +700,7 @@ setWlOffLed(void)
 			}
 			break;
 		}
+		case MODEL_R6300V2:
 		case MODEL_RPAC68U:
 		case MODEL_RTAC68U:
 			if (wlon_unit != 0) {
@@ -845,6 +855,7 @@ setAllLedOff(void)
 			eval("wl", "-i", "eth2", "ledbh", "0", "0");	// wl 5G
 			eval("wl", "-i", "eth2", "ledbh", "9", "0");	// wl 5G
 			break;
+		case MODEL_R6300V2:
 		case MODEL_RTAC68U:
 		case MODEL_RTAC3200:
 		case MODEL_RTAC5300:
@@ -852,7 +863,7 @@ setAllLedOff(void)
 		case MODEL_RTAC88U:
 		case MODEL_RTAC3100:
 		{
-#if defined(RTAC68U) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
 			led_control(LED_USB, LED_OFF);
 			led_control(LED_USB3, LED_OFF);
 #endif
@@ -891,6 +902,13 @@ setAllLedOff(void)
 			if (!strcmp(get_productid(), "RT-AC66U V2"))
 			led_control(LED_WAN, LED_OFF);
 #endif
+#ifdef R6300V2
+			/* 4360's fake 5g led */
+			led_control(LED_5G, LED_OFF);
+			//if (!strcmp(get_productid(), "RT-AC66U V2"))
+			//led_control(LED_WAN, LED_OFF);
+#endif
+
 #ifdef RTCONFIG_FAKE_ETLAN_LED
 			led_control(LED_LAN, LED_OFF);
 #endif
@@ -1052,6 +1070,7 @@ setATEModeLedOn(void) {
 #endif
 			break;
 		}
+		case MODEL_R6300V2:
 		case MODEL_RTAC68U:
 		case MODEL_RTAC3200:
 		{

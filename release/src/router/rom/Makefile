@@ -154,6 +154,14 @@ ifeq ($(RTAC68U),y)
 	cp -rf cfe/mtd-write $(INSTALLDIR)/rom/cfe/
 endif
 
+ifeq ($(R6300V2),y)
+	mkdir -p $(INSTALLDIR)/rom/cfe
+	cp -rf cfe/cfe_tmo_2.1.2.6.bin $(INSTALLDIR)/rom/cfe/
+	cp -rf cfe/cfe_1.0.2.0.bin $(INSTALLDIR)/rom/cfe
+	cp -rf cfe/cfe_1.0.2.0_esmt.bin $(INSTALLDIR)/rom/cfe
+	cp -rf cfe/mtd-write $(INSTALLDIR)/rom/cfe/
+endif
+
 ifeq ($(RTCONFIG_MEDIA_SERVER),y)
 	mkdir -p $(INSTALLDIR)/rom/dlna
 ifeq ($(RTCONFIG_INTERNAL_GOBI),y)

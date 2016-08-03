@@ -350,6 +350,7 @@ void enable_wan_wled()
 	if(usb_wan) {
 		switch (get_model()) {
 			case MODEL_RTAC68U:
+			case MODEL_R6300V2:
 				if (strcmp(get_productid(), "RT-AC66U V2"))
 					break;
 			case MODEL_RTAC3200:
@@ -393,13 +394,13 @@ static void wan_led_control(int sig) {
 	}
 #endif
 #endif
-#if defined(RTAC68U) ||  defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R) || defined(DSL_AC68U)
+#if defined(R6300V2) || defined(RTAC68U) ||  defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R) || defined(DSL_AC68U)
 	if(nvram_match("AllLED", "1")
 #ifdef RTAC68U
 		&& !strcmp(get_productid(), "RT-AC66U V2")
 #endif
 	) {
-#if defined(RTAC68U) ||  defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC68U) ||  defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
 		if (rule_setup) {
 			led_control(LED_WAN, LED_ON);
 			disable_wan_wled();
@@ -2170,7 +2171,7 @@ int wanduck_main(int argc, char *argv[]){
 #endif
 	unsigned int now;
 #ifdef RTCONFIG_DUALWAN
-#if defined(RTAC68U) ||  defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC68U) ||  defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
 	int wanred_led_status = 0;	/* 1 is no internet, 2 is internet ok */
 	int u, link_status;
 #endif
@@ -3380,7 +3381,7 @@ _dprintf("nat_rule: start_nat_rules 6.\n");
 					if (nvram_match("led_disable", "0")) {
 #if defined(RTCONFIG_WPS_ALLLED_BTN) || defined(RTCONFIG_DSL)
 						led_control(LED_WAN, LED_OFF);
-#elif defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
+#elif defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
 						if(
 #ifdef RTAC68U
 							!strcmp(get_productid(), "RT-AC66U V2")
@@ -3461,7 +3462,7 @@ _dprintf("nat_rule: start_nat_rules 6.\n");
 						led_control(LED_WAN, LED_OFF);
 #elif defined(DSL_N55U) || defined(DSL_N55U_B)
 					led_control(LED_WAN, LED_ON);
-#elif defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
+#elif defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
 				if(nvram_match("AllLED", "1")
 #ifdef RTAC68U
 					&& !strcmp(get_productid(), "RT-AC66U V2")
@@ -3541,7 +3542,7 @@ _dprintf("nat_rule: start_nat_rules 6.\n");
 				notify_rc_and_wait(cmd);
 			}
 		}
-#if defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300)|| defined(RTAC5300R)
 
 		if (strcmp(dualwan_wans, "wan none")) {
 			if(nvram_match("AllLED", "1")

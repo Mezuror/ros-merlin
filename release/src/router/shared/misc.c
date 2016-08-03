@@ -1103,6 +1103,7 @@ uint32_t crc_calc(uint32_t crc, const char *buf, int len)
 void bcmvlan_models(int model, char *vlan)
 {
 	switch (model) {
+	case MODEL_R6300V2:
 	case MODEL_DSLAC68U:
 	case MODEL_RPAC68U:
 	case MODEL_RTAC68U:

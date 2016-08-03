@@ -250,6 +250,7 @@ extern int is_no_partition(const char *discname);
 // id.c
 enum {
 	MODEL_UNKNOWN = 0,
+	MODEL_R6300V2,
 	MODEL_DSLN55U,
 	MODEL_DSLAC68U,
 	MODEL_EAN66,
@@ -490,6 +491,7 @@ enum led_fan_mode_id {
 static inline int have_usb3_led(int model)
 {
 	switch (model) {
+		case MODEL_R6300V2:
 		case MODEL_RTN18U:
 		case MODEL_RTAC56U:
 		case MODEL_RTAC56S:
@@ -1144,7 +1146,7 @@ static inline int is_usb3_port(char *usb_node)
 #define MIB_RX_REG 0x88
 #define MIB_TX_REG 0x00
 
-#if defined(RTN18U) || defined(RTAC56U) || defined(RTAC56S) || defined(RTAC68U) || defined(RTAC3200) || defined(DSL_AC68U)
+#if defined(R6300V2) || defined(RTN18U) || defined(RTAC56U) || defined(RTAC56S) || defined(RTAC68U) || defined(RTAC3200) || defined(DSL_AC68U)
 #define CPU_PORT "5"
 #define WAN0DEV "vlan2"
 #endif

@@ -261,7 +261,7 @@ var ctf_disable = '<% nvram_get("ctf_disable"); %>';
 var ctf_fa_mode = '<% nvram_get("ctf_fa_mode"); %>';
 var qos_bw_rulelist = "<% nvram_get("qos_bw_rulelist"); %>".replace(/&#62/g, ">").replace(/&#60/g, "<");
 var select_all_checked = 0;
-if ((based_modelid == "RT-AC56U") || (based_modelid == "RT-AC68U") ||
+if ((based_modelid == "R6300_V2") || (based_modelid == "RT-AC56U") || (based_modelid == "RT-AC68U") ||
     (based_modelid == "RT-AC87U") || (based_modelid == "RT-AC3200") ||
     (based_modelid == "RT-AC88U") || (based_modelid == "RT-AC5300") ||
     (based_modelid == "RT-AC3100"))

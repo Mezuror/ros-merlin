@@ -72,19 +72,21 @@ function QKinternettype_load_body(){
 	
 		ISP_Profile_Selection(original_switch_wantag);
 
-		if( parent.based_modelid != "RT-AC3200" &&
-                        parent.based_modelid != "RT-AC87U" &&
-                        parent.based_modelid != "RT-AC68U" &&
-                        parent.based_modelid != "RT-AC66U" &&
-                        parent.based_modelid != "RT-AC51U" &&
-                        parent.based_modelid != "RT-N66U" &&
-                        parent.based_modelid != "RT-N18U"
+		if( parent.based_modelid != "R6300_V2" &&
+			parent.based_modelid != "RT-AC3200" &&
+            parent.based_modelid != "RT-AC87U" &&
+			parent.based_modelid != "RT-AC68U" &&
+			parent.based_modelid != "RT-AC66U" &&
+			parent.based_modelid != "RT-AC51U" &&
+			parent.based_modelid != "RT-N66U" &&
+			parent.based_modelid != "RT-N18U"
                 ){      // MODELDEP: RT-AC3200, RT-AC87U@sysdep/RT-AC55U, RT-AC68U, RT-AC66U, RT-AC51U, RT-N66U, RT-N18U
 			document.getElementById('meoOption').outerHTML = "";
 			document.getElementById('vodafoneOption').outerHTML = "";
 		}
 
-		if( parent.based_modelid != "RT-AC5300" &&
+		if( parent.based_modelid != "R6300_V2" &&
+			parent.based_modelid != "RT-AC5300" &&
 			parent.based_modelid != "RT-AC3200" &&
 			parent.based_modelid != "RT-AC3100" &&
 			parent.based_modelid != "RT-AC88U" &&

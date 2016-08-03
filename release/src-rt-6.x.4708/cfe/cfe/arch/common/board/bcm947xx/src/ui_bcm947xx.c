@@ -77,7 +77,7 @@ extern void FANON(void);
 #define PWR_LED_GPIO	(1 << 3)	// GPIO 3
 #define RST_BTN_GPIO	(1 << 11)	// GPIO 11
 #endif
-#ifdef RTAC68U
+#if defined(R6300V2) || defined(RTAC68U)
 #define	TURBO_LED_GPIO	(1 << 4)	// GPIO 4
 #define WPS_BTN_GPIO	(1 << 7)	// GPIO 7
 #else
@@ -328,13 +328,13 @@ extern void LEDON(void)
 	sih = si_kattach(SI_OSH);
 	ASSERT(sih);
 	si_gpioouten(sih, PWR_LED_GPIO, PWR_LED_GPIO, GPIO_DRV_PRIORITY);
-#if defined(RTAC68U) || defined(RTAC87U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U)
 	si_gpioouten(sih, TURBO_LED_GPIO, TURBO_LED_GPIO, GPIO_DRV_PRIORITY);
 #endif
 	/* led on */
 	/* negative logic and hence val==0 */
 	si_gpioout(sih, PWR_LED_GPIO, 0, GPIO_DRV_PRIORITY);
-#if defined(RTAC68U) || defined(RTAC87U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U)
 	si_gpioout(sih, TURBO_LED_GPIO, 0, GPIO_DRV_PRIORITY);
 #endif
 }
@@ -347,7 +347,7 @@ extern void GPIO_INIT(void)
 	si_gpiocontrol(sih, SMI_SCK_GPIO, 0, GPIO_DRV_PRIORITY);
 	si_gpiocontrol(sih, SMI_SDA_GPIO, 0, GPIO_DRV_PRIORITY);
 #else
-#if defined(RTAC68U) || defined(RTAC87U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U)
 	si_gpiocontrol(sih, TURBO_LED_GPIO, 0, GPIO_DRV_PRIORITY);
 #endif
 #endif
@@ -357,7 +357,7 @@ extern void GPIO_INIT(void)
 	si_gpioouten(sih, SMI_SCK_GPIO, 0, GPIO_DRV_PRIORITY);
 	si_gpioouten(sih, SMI_SDA_GPIO, 0, GPIO_DRV_PRIORITY);
 #else
-#if defined(RTAC68U) || defined(RTAC87U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U)
 	si_gpioouten(sih, TURBO_LED_GPIO, 0, GPIO_DRV_PRIORITY);
 #endif
 #endif
@@ -368,11 +368,11 @@ extern void LEDOFF(void)
 	sih = si_kattach(SI_OSH);
 	ASSERT(sih);
 	si_gpioouten(sih, PWR_LED_GPIO, PWR_LED_GPIO, GPIO_DRV_PRIORITY);
-#if defined(RTAC68U) || defined(RTAC87U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U)
 	si_gpioouten(sih, TURBO_LED_GPIO, TURBO_LED_GPIO, GPIO_DRV_PRIORITY);
 #endif
 	si_gpioout(sih, PWR_LED_GPIO, PWR_LED_GPIO, GPIO_DRV_PRIORITY);
-#if defined(RTAC68U) || defined(RTAC87U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC87U)
 	si_gpioout(sih, TURBO_LED_GPIO, TURBO_LED_GPIO, GPIO_DRV_PRIORITY);
 #endif
 }

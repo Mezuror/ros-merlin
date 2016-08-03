@@ -238,6 +238,7 @@ void led_control_normal(void)
 void erase_nvram(void)
 {
 	switch (get_model()) {
+		case MODEL_R6300V2:
 		case MODEL_RTAC56S:
 		case MODEL_RTAC56U:
 		case MODEL_RTAC3200:
@@ -261,6 +262,7 @@ void erase_nvram(void)
 int init_toggle(void)
 {
 	switch (get_model()) {
+		case MODEL_R6300V2:
 		case MODEL_RTAC56S:
 		case MODEL_RTAC56U:
 		case MODEL_RTAC3200:
@@ -347,7 +349,7 @@ void btn_check(void)
 			TRACE_PT("button LED pressed\n");
 			nvram_set("btn_led", "1");
 		}
-#if defined(RTAC68U)
+#if defined(R6300V2) || defined(RTAC68U)
 		else if (!nvram_match("cpurev", "c0") || nvram_get_int("PA") == 5023)
 		{
 			TRACE_PT("button LED released\n");
@@ -724,8 +726,8 @@ void btn_check(void)
 	LED_status_old = LED_status;
 	LED_status = button_pressed(BTN_LED);
 
-#if defined(RTAC68U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
-#if defined(RTAC68U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
+#if defined(R6300V2) || defined(RTAC68U)
 	if (!strcmp(get_productid(), "RT-AC66U V2"))
 		;
 	else if (nvram_match("cpurev", "c0") && nvram_get_int("PA") != 5023) {
@@ -783,7 +785,7 @@ void btn_check(void)
 #endif
 #endif
 
-#if defined(RTAC68U)
+#if defined(RTAC68U) || defined(R6300V2)
 		if (((!nvram_match("cpurev", "c0") || nvram_get_int("PA") == 5023) && LED_status == LED_status_on) ||
 		      (nvram_match("cpurev", "c0") && nvram_get_int("PA") != 5023 && LED_status_on))
 #elif defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
@@ -792,7 +794,7 @@ void btn_check(void)
 			nvram_set_int("AllLED", 1);
 		else
 			nvram_set_int("AllLED", 0);
-#if defined(RTAC68U)
+#if defined(RTAC68U) || defined(R6300V2)
 		if (((!nvram_match("cpurev", "c0") || nvram_get_int("PA") == 5023) && LED_status == LED_status_on) ||
 		      (nvram_match("cpurev", "c0") && nvram_get_int("PA") != 5023 && LED_status_on))
 #elif defined(RTAC3200) || defined(RTAC88U) || defined(RTAC3100) || defined(RTAC5300) || defined(RTAC5300R)
@@ -809,12 +811,16 @@ void btn_check(void)
 				kill_pidfile_s("/var/run/wanduck.pid", SIGUSR2);
 			else
 #endif
+#ifdef R6300V2
+endif
 			eval("et", "robowr", "0", "0x18", "0x01ff");
 			eval("et", "robowr", "0", "0x1a", "0x01ff");
 #endif
 
 			if (wlonunit == -1 || wlonunit == 0) {
 #ifdef RTAC68U
+				eval("wl", "ledbh", "10", "7");
+#elif defined(R6300V2)
 				eval("wl", "ledbh", "10", "7");
 #elif defined(RTAC3200)
 				eval("wl", "-i", "eth2", "ledbh", "10", "7");
@@ -824,6 +830,8 @@ void btn_check(void)
 			}
 			if (wlonunit == -1 || wlonunit == 1) {
 #ifdef RTAC68U
+				eval("wl", "-i", "eth2", "ledbh", "10", "7");
+#elif defined(R6300V2)
 				eval("wl", "-i", "eth2", "ledbh", "10", "7");
 #elif defined(RTAC3200)
 				eval("wl", "ledbh", "10", "7");
@@ -841,6 +849,14 @@ void btn_check(void)
 			}
 #endif
 #ifdef RTAC68U
+			if (nvram_match("wl1_radio", "1") &&
+			   (wlonunit == -1 || wlonunit == 1))
+			{
+				nvram_set("led_5g", "1");
+				led_control(LED_5G, LED_ON);
+			}
+#endif
+#ifdef R6300V2
 			if (nvram_match("wl1_radio", "1") &&
 			   (wlonunit == -1 || wlonunit == 1))
 			{
@@ -2700,7 +2716,7 @@ static void auto_firmware_check()
 	}
 #endif
 
-#if defined(RTAC68U)
+#if defined(R6300V2) || defined(RTAC68U) 
 	else if (After(get_blver(nvram_safe_get("bl_version")), get_blver("2.1.2.1")) && !nvram_get_int("PA") && !nvram_match("cpurev", "c0"))
 	{
 		periodic_check = 1;
@@ -2737,8 +2753,8 @@ static void auto_firmware_check()
 		{
 			dbg("retrieve firmware information\n");
 
-#if defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
-#if defined(RTAC68U)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
+#if defined(R6300V2) || defined(RTAC68U) 
 			if (!After(get_blver(nvram_safe_get("bl_version")), get_blver("2.1.2.1")) || nvram_get_int("PA") || nvram_match("cpurev", "c0"))
 				return;
 #endif
@@ -2790,7 +2806,7 @@ static void auto_firmware_check()
 		}
 		else
 			dbg("could not retrieve firmware information!\n");
-#if defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
+#if defined(R6300V2) || defined(RTAC68U) || defined(RTCONFIG_FORCE_AUTO_UPGRADE)
 ERROR:
 		nvram_set_int("auto_upgrade", 0);
 #endif

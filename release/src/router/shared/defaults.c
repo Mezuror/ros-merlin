@@ -676,7 +676,7 @@ struct nvram_tuple router_defaults[] = {
 
 #ifdef RTCONFIG_BCMWL6
 	{ "acs_ifnames", "", 0 },
-#if defined (RTAC68U) || defined (RTAC66U) || defined (RTN66U) || defined (RTCONFIG_QTN) || defined (DSL_AC68U)
+#if defined(R6300V2) || defined (RTAC68U) || defined (RTAC66U) || defined (RTN66U) || defined (RTCONFIG_QTN) || defined (DSL_AC68U)
 	{ "acs_dfs", "0", 0},			/* disable DFS channels for acsd by default */
 #endif
 	{ "acs_band1", "0", 0},
