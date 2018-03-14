@@ -1,7 +1,5 @@
 include ../common.mak
 
-#BUILD_READMEM=y
-
 CFLAGS += -Wall -Os $(EXTRACFLAGS)
 CFLAGS += -I. -I$(TOP)/shared -I$(SRCBASE)/include -idirafter$(LINUXDIR)/include
 CFLAGS += -I$(TOP)/openssl/include
@@ -13,7 +11,6 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -DDLM -DASUS_DDNS -DASUS_EXT -DBTN_SETUP -DWEB_REDIRECT -DRTCONFIG_CROND
 
 CFLAGS += -DDEBUG_RCTEST
-CFLAGS += -DQCA_WIFI_INS_RM
 
 ifeq ($(RTCONFIG_WPS),y)
 CFLAGS += -I$(SRCBASE)/wps/brcm_apps/include
@@ -26,11 +23,16 @@ export CFLAGS += -DMAC_REPEATER
 endif
 ifneq ($(findstring CONFIG_RT2860V2_AP_EDCCA_MONITOR=, $(shell cat $(LINUXDIR)/.config)),)
 export CFLAGS += -DCE_ADAPTIVITY
+else
+ifeq (y,$(filter y,$(RTN56UB1) $(RTN56UB2)))
+export CFLAGS += -DCE_ADAPTIVITY
+endif
 endif
 endif
 
 ifeq ($(RTCONFIG_QCA),y)
 CFLAGS += -I$(TOP)/shared/sysdeps/qca -I$(TOP)/wireless_tools
+CFLAGS += $(if $(RTCONFIG_SOC_IPQ8064),-DSMP)
 endif
 
 include $(SRCBASE)/.config
@@ -83,11 +85,14 @@ LDFLAGS += -L$(TOP)/libdisk -ldisk
 ifeq ($(BCM_MMC),y)
 CFLAGS += -DBCM_MMC
 endif
-endif
-
 ifeq ($(RTCONFIG_USB_MODEM),y)
 CFLAGS += -DSET_USB_MODEM_MTU_ETH
 CFLAGS += -DSET_USB_MODEM_MTU_PPP
+ifeq ($(RTCONFIG_USB_SMS_MODEM),y)
+CFLAGS += -I$(TOP)/smspdu
+LDFLAGS += -L$(TOP)/smspdu -lsmspdu
+endif
+endif
 endif
 
 ifeq ($(RTCONFIG_PUSH_EMAIL),y)
@@ -98,10 +103,18 @@ LDFLAGS += -L$(TOP)/wb -lws
 LDFLAGS += -L$(TOP)/push_log -lpush_log
 endif
 
+ifeq ($(RTCONFIG_FBWIFI),y)
+LDFLAGS += -L$(TOP)/fb_wifi -lfbwifi
+endif
+
 ifeq ($(RTCONFIG_NOTIFICATION_CENTER),y)
 CFLAGS  += -I$(TOP)/sqlite
 CFLAGS  += -I$(TOP)/nt_center/lib
 CFLAGS  += -DASUSWRT_SDK
+endif
+
+ifeq ($(RTCONFIG_PROTECTION_SERVER),y)
+CFLAGS  += -I$(TOP)/protect_srv/include
 endif
 
 #CFLAGS += -DRC_BUILDTIME=$(shell date -d "now" +"%s")
@@ -121,6 +134,10 @@ ifeq ($(RA_SKU),y)
 export CFLAGS += -DRA_SINGLE_SKU
 endif
 
+ifeq ($(or $(RTAC68A),$(RT4GAC68U)),y)
+CFLAGS += -DRTAC68U
+endif
+
 LDFLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
 ifeq ($(STATIC),1)
 LDFLAGS += -static
@@ -129,7 +146,8 @@ LDFLAGS += $(EXTRA_LDFLAGS)
 
 OBJS := rc.o init.o interface.o lan.o wireless.o wan.o pppd.o auth.o services.o #mtd.o
 OBJS += firewall.o ppp.o services.o common.o
-OBJS += watchdog.o ntp.o btnsetup.o qos.o udhcpc.o ate.o #cpu.o
+OBJS += watchdog.o ntp.o btnsetup.o qos.o udhcpc.o ate.o
+OBJS += format.o
 ifeq ($(RTAC1200G),y)
 OBJS += mtd_sflash.o
 else
@@ -149,7 +167,7 @@ ifeq ($(RTCONFIG_DSL),y)
 OBJS += init-ralink-dsl.o 
 endif
 else ifeq ($(RTCONFIG_QCA),y)
-OBJS += init-qca.o wps-qca.o qca.o ate-qca.o $(if $(wildcard sysdeps/qca/ctl.c),ctl.o,prebuild/ctl.o)
+OBJS += init-qca.o wps-qca.o qca.o ate-qca.o $(if $(wildcard sysdeps/qca/ctl.c),ctl.obj,prebuild/ctl.obj)
 else
 OBJS += init-broadcom.o wps-broadcom.o broadcom.o ate-broadcom.o
 ifeq ($(BUILD_NAME), RT-AC68U)
@@ -165,13 +183,13 @@ endif
 
 # TODO, speedtest
 ifeq ($(RTCONFIG_SPEEDTEST),y)
-OBJS += speedtest.o
+OBJS += $(if $(wildcard speedtest.c),speedtest.o,prebuild/speedtest.o)
 endif
 
 OBJS += wanduck.o
 OBJS += tcpcheck.o
 
-ifeq ($(BUILD_READMEM),y)
+ifeq ($(RTCONFIG_SOC_IPQ8064),y)
 CFLAGS += -DBUILD_READMEM
 OBJS += readmem.o
 endif
@@ -183,11 +201,11 @@ OBJS += usb_devices.o
 endif
 
 ifeq ($(RTCONFIG_JFFS2),y)
-OBJS += jffs2.o
+OBJS += jffs2.o 
 endif
 
 ifeq ($(RTCONFIG_BRCM_NAND_JFFS2),y)
-OBJS += jffs2.o
+OBJS += jffs2.o 
 endif
 
 ifeq ($(RTCONFIG_UBIFS),y)
@@ -206,11 +224,7 @@ ifeq ($(RTCONFIG_WTFAST),y)
 OBJS += wtfast.o
 endif
 
-ifeq ($(RTCONFIG_PPTPD),y)
-OBJS += vpn.o
-endif
-
-ifeq ($(RTCONFIG_ACCEL_PPTPD),y)
+ifeq ($(or $(RTCONFIG_PPTPD),$(RTCONFIG_ACCEL_PPTPD)),y)
 OBJS += vpn.o
 endif
 
@@ -222,6 +236,10 @@ CFLAGS += -DRTCONFIG_CROND
 OBJS += openvpn.o
 endif
 
+ifeq ($(RTCONFIG_IPSEC),y)
+OBJS += rc_ipsec.o
+endif
+
 ifeq ($(RTCONFIG_PARENTALCTRL),y)
 OBJS += pc.o
 OBJS += pc_block.o
@@ -229,6 +247,10 @@ endif
 
 ifeq ($(RTCONFIG_PUSH_EMAIL),y)
 OBJS += dsl_fb.o
+endif
+
+ifeq ($(RTCONFIG_DSL),y)
+OBJS += asustest.o
 endif
 
 ifeq ($(RTCONFIG_DSL),y)
@@ -263,10 +285,8 @@ ifeq ($(RTCONFIG_SHP),y)
 CFLAGS += -DSHP
 endif
 
-ifeq ($(RTCONFIG_USB),y)
-ifneq ($(RTCONFIG_BLINK_LED),y)
+ifeq ($(and $(RTCONFIG_USB),$(RTCONFIG_BCM_7114)),y)
 SW_USBLED=y
-endif
 endif
 
 ifeq ($(RTCONFIG_DSL),y)
@@ -319,7 +339,7 @@ endif
 
 
 ifeq ($(RTCONFIG_HTTPS),y)
-ifeq ($(RTCONFIG_PUSH_EMAIL),y)
+ifeq ($(or $(RTCONFIG_PUSH_EMAIL),$(RTCONFIG_NOTIFICATION_CENTER)),y)
 OBJS += pwdec.o
 endif
 endif
@@ -363,6 +383,10 @@ ifeq ($(RTCONFIG_PORT_BASED_VLAN),y)
 OBJS += vlan.o
 endif
 
+ifeq ($(RTCONFIG_DNSFILTER),y)
+OBJS += dnsfilter.o
+endif
+
 ifeq ($(RTCONFIG_BCMARM),y)
 ifeq ($(RTCONFIG_QTN),y)
 vpath %.c sysdeps sysdeps/broadcom sysdeps/qtn $(TOP)/libqcsapi_client/qcsapi_rpc_common/client $(TOP)/sysdeps/qtn $(SRCBASE)/shared
@@ -379,6 +403,10 @@ endif
 
 ifeq ($(RTCONFIG_TUNNEL),y)
 OBJS += natnl_api.o
+endif
+
+ifneq ($(RTCONFIG_RALINK)$(RTCONFIG_QCA)$(RTCONFIG_REALTEK),y)
+OBJS += erp_monitor.o
 endif
 
 all: rc
@@ -423,7 +451,12 @@ endif
 ifneq ($(RTCONFIG_QCA)$(RTCONFIG_RALINK),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc watchdog02
 endif
+ifneq (,$(filter y,$(RTCONFIG_WLAN_LED) $(RTN18U) $(RTCONFIG_FAKE_ETLAN_LED) $(SW_USBLED) $(RTCONFIG_MMC_LED) $(RTCONFIG_BRCM_USBAP) $(RTAC66U) $(BCM4352) $(SW_DSLWANLED)))
 	@cd $(INSTALLDIR)/sbin && ln -sf rc sw_devled
+endif
+ifeq ($(RTAC1200G),y)
+	@cd $(INSTALLDIR)/sbin && ln -sf rc wdg_monitor
+endif
 ifeq ($(RTCONFIG_FANCTRL),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc phy_tempsense
 endif
@@ -520,11 +553,16 @@ endif
 ifeq ($(RTCONFIG_BCM_7114),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc stop_wl
 endif
+ifeq ($(RTCONFIG_ERPTEST),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc restart_usb
+endif
 ifeq ($(RTCONFIG_BCMARM),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc nvram_erase
 endif
 	@cd $(INSTALLDIR)/sbin && ln -sf rc ATE
+ifeq ($(RTCONFIG_DSL),y)
+	@cd $(INSTALLDIR)/sbin && ln -sf rc asustest
+endif
 ifeq ($(or $(RTCONFIG_RALINK),$(RTCONFIG_QCA)),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc FWRITE
 	@cd $(INSTALLDIR)/sbin && ln -sf rc FREAD
@@ -568,7 +606,7 @@ endif
 	@cd $(INSTALLDIR)/sbin && ln -sf rc get_phy_status
 	@cd $(INSTALLDIR)/sbin && ln -sf rc get_phy_speed
 	@cd $(INSTALLDIR)/sbin && ln -sf rc firmware_check
-ifeq ($(BUILD_READMEM),y)
+ifeq ($(RTCONFIG_SOC_IPQ8064),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc readmem
 endif
 ifeq ($(RTCONFIG_HTTPS),y)
@@ -612,6 +650,10 @@ endif
 ifeq ($(RTCONFIG_KEY_GUARD),y)
 	@cd $(INSTALLDIR)/sbin && ln -sf rc keyguard
 endif
+ifneq ($(RTCONFIG_RALINK)$(RTCONFIG_QCA)$(RTCONFIG_REALTEK),y)
+	@cd $(INSTALLDIR)/sbin && ln -sf rc erp_monitor
+endif
+
 clean:
 	rm -f rc *.o .*.depend
 
@@ -640,6 +682,18 @@ dsl_fb.o:dsl_fb.c
 	@echo "decrypt dsl password"
 	./dsl_fb_dec.sh
 endif
+endif
+endif
+
+# asustest command is for DSL models only, debugging purpose.
+ifeq ($(RTCONFIG_DSL),y)
+ifneq ($(wildcard ./prebuild/asustest.o),)
+asustest.o:
+	@-cp -f ./prebuild/asustest.o .
+else
+asustest.o:asustest.c
+	@echo "compile asustest"
+	$(CC) $(CFLAGS) -c asustest.c
 endif
 endif
 
@@ -674,7 +728,6 @@ cfe.o:
 endif
 endif
 endif
-
 
 ifeq ($(RTCONFIG_RALINK),y)
 ifneq ($(wildcard ./prebuild/ate-ralink.o),)
@@ -724,7 +777,7 @@ endif
 .%.depend: %.c
 	@$(CC) $(CFLAGS) -M $< > $@
 
-
+-include Makefile.hook
 
 pswatch: pswatch.c
 	$(CC) -o $@ $^

@@ -37,43 +37,43 @@ var wdogWarn = null;
 var href_lang = get_supportsite_lang();
 switch("<% nvram_get("preferred_lang"); %>"){
 	case "KR":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "RO":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "HU":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "IT":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "DA":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;	
 	case "BR":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "SV":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "FI":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "NO":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "TH":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "DE":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "PL":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	case "CZ":
-						href_lang = "/us/";
+						href_lang = "/";
 						break;
 	default:
 						break;
@@ -188,15 +188,13 @@ function init()
 	document.getElementById("faq0").href = "http://www.asus.com"+ href_lang +"support/Search-Result-Detail/69B50762-C9C0-15F1-A5B8-C7B652F50ACF/?keyword=ASUSWRT%20Traffic%20Monitor" ;
 
 	var ctf_disable = '<% nvram_get("ctf_disable"); %>';
-	if(ctf_disable == 1){
-		document.getElementById("ctfLevelDesc").style.display = "none";
-	}
-	else{
+	if(ctf_disable == "0"){
 		document.getElementById("ctfLevelDesc").style.display = "";
 	}
-	if(bwdpi_support){
-		document.getElementById('content_title').innerHTML = "<#menu5_3_2#> - <#traffic_monitor#>";
-	}	
+	else{ // ctf_disable == 1 or ctf_disable is not existed
+		document.getElementById("ctfLevelDesc").style.display = "none";
+	}
+	
 }
 
 function switchPage(page){
@@ -263,7 +261,7 @@ function switchPage(page){
 							<table width="100%" >
 							<tr>
 							<td  class="formfonttitle" align="left">
-										<div id="content_title" style="margin-top:5px;"><#Menu_TrafficManager#> - <#traffic_monitor#></div>
+										<div style="margin-top:5px;"><#Menu_TrafficManager#> - <#traffic_monitor#></div>
 									</td>
 							<td>
      						<div align="right">
@@ -316,24 +314,24 @@ function switchPage(page){
 
         			<tr>
         				<td>
-							<span id="tab-area"></span>
-								<!--========= svg =========-->
-								<!--[if IE]>
-									<div id="svg-table" align="left">
-										<object id="graph" src="tm.svg" classid="image/svg+xml" width="730" height="350">
-									</div>
-								<![endif]-->
-								<!--[if !IE]>-->
+							<span id="tab-area"></span>									
+							<!--========= svg =========-->
+							<!--[if IE]>
+								<div id="svg-table" align="left" class="IE8HACK">
+									<object id="graph" src="tm.svg" classid="image/svg+xml" width="730" height="350">
+								</div>
+							<![endif]-->
+							<!--[if !IE]>-->
 								<object id="graph" data="tm.svg" type="image/svg+xml" width="730" height="350">
-								<!--<![endif]-->
+							<!--<![endif]-->
 								</object>
-      							<!--========= svg =========-->
+  							<!--========= svg =========-->
       					</td>
         			</tr>
 
   		     		<tr>
-						<td >
-				    	 	<table width="730px" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable_NWM" style="margin-top:10px;margin-left:-1px;*margin-left:-10px;">
+						<td>
+				    	 	<table width="730px" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable_NWM" style="margin-top:0px;margin-left:-1px;*margin-left:-10px;margin-left:-12px \9;">
 						  		<tr>
 						  			<th style="text-align:center; width:160px;"><#Current#></th>
 						  			<th style="text-align:center; width:160px;"><#Average#></th>

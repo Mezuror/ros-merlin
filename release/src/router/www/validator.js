@@ -295,7 +295,7 @@ var validator = {
 	},
 
 	hostName: function (obj){
-		var re = new RegExp("^[a-zA-Z0-9][a-zA-Z0-9\-\_]+$","gi");
+		var re = new RegExp(/^[a-zA-Z0-9][a-zA-Z0-9\-\_]+$/gi);
 		if(re.test(obj.value)){
 			return "";
 		}
@@ -315,6 +315,16 @@ var validator = {
 		if (ch==46) return true;	//.
 		
 		return false;
+	},
+
+	domainName: function (obj) { //support a-z, 0-9, "-", "_" , "."", The first character cannot be dash "-" or under line "_"
+		var re = new RegExp(/^(?:[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?\.)*[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]$/i);
+		if(re.test(obj.value)){
+			return "";
+		}
+		else{
+			return "<#JS_validhostname#>";
+		}
 	},
 
 	requireWANIP: function(v){
@@ -813,20 +823,20 @@ var validator = {
 				v4 = num;
 			
 			return true;
-		}	
+		}
 	},
 
-	ipAddrFinal: function(o, v){
+	ipAddrFinal: function(o, v, noAlert){
 		var num = -1;
 		var pos = 0;
-		var v1, v2, v3, v4;	
+		var v1, v2, v3, v4;
 		if(o.value.length == 0){
 			if(v == 'dhcp_start' || v == 'dhcp_end' ||
 					v == 'wan_ipaddr_x' ||
 					v == 'dhcp1_start' || v=='dhcp1_end' ||
 					v == 'lan_ipaddr' || v=='lan_netmask' ||
 					v=='lan1_ipaddr' || v=='lan1_netmask' ||
-					v == 'wl_radius_ipaddr' || v == 'hs_radius_ipaddr') {	
+					v == 'wl_radius_ipaddr' || v == 'hs_radius_ipaddr') {
 				alert("<#JS_fieldblank#>");
 				
 				if(v == 'wan_ipaddr_x'){
@@ -871,13 +881,17 @@ var validator = {
 			}
 			else{
 				if(num < 0 || num > 255 || c != '.'){
-					alert(o.value+" <#JS_validip#>");
-					
-					o.value = "";
-					o.focus();
-					o.select();
-					
-					return false;
+					if(v == 'wl_radius_ipaddr' && typeof(noAlert) != undefined && noAlert == 1){
+						return false;
+					}
+					else{
+						alert(o.value+" <#JS_validip#>");
+						
+						o.value = "";
+						o.focus();
+						o.select();
+						return false;
+					}
 				}
 				
 				if(pos == 0)
@@ -893,12 +907,16 @@ var validator = {
 		}
 		
 		if(pos!=3 || num<0 || num>255){
-			alert(o.value + " <#JS_validip#>");
-			o.value = "";
-			o.focus();
-			o.select();
-			
-			return false;
+			if(v == 'wl_radius_ipaddr' && typeof(noAlert) != undefined && noAlert == 1){
+				return false;
+			}
+			else{
+				alert(o.value + " <#JS_validip#>");
+				o.value = "";
+				o.focus();
+				o.select();
+				return false;
+			}
 		}
 		else
 			v4 = num;
@@ -911,13 +929,17 @@ var validator = {
 				v == 'dhcp_dns1_x' || v == 'dhcp_gateway_x' || v == 'dhcp_wins_x' ||
 				v == 'sip_server'){
 			if((v!='wan_ipaddr_x')&& (v1==255||v4==255||v1==0||v4==0||v1==127||v1==224)){
-				alert(o.value + " <#JS_validip#>");
-				
-				o.value = "";
-				o.focus();
-				o.select();
-				
-				return false;
+				if(v == 'wl_radius_ipaddr' && typeof(noAlert) != undefined && noAlert == 1){
+					return false;
+				}
+				else{
+					alert(o.value + " <#JS_validip#>");
+					
+					o.value = "";
+					o.focus();
+					o.select();
+					return false;
+				}
 			}
 			
 			if(sw_mode == "2" || sw_mode == "3")	// variables are defined in state.js
@@ -1451,13 +1473,6 @@ var validator = {
 			return v.substring(i);
 		};
 
-		if(isNaN(o.value)){
-			alert('<#JS_validrange#> ' + _min + ' <#JS_validrange_to#> ' + _max);
-			o.focus();
-			o.select();
-			return false;
-		}
-
 		if(_min > _max){
 			var tmpNum = "";
 		
@@ -1466,7 +1481,7 @@ var validator = {
 			_max = tmpNum;
 		}
 
-		if(o.value < _min || o.value > _max) {
+		if(isNaN(o.value) || o.value < _min || o.value > _max) {
 			alert('<#JS_validrange#> ' + _min + ' <#JS_validrange_to#> ' + _max);
 			o.focus();
 			o.select();
@@ -1484,7 +1499,7 @@ var validator = {
 	rangeNull: function(o, min, max, def) {		//Viz add 2013.03 allow to set null
 		if (o.value=="") return true;
 		
-		if(o.value<min || o.value>max) {
+		if(isNaN(o.value) || o.value < min || o.value > max) {
 			alert('<#JS_validrange#> ' + min + ' <#JS_validrange_to#> ' + max + '.');
 			o.value = def;
 			o.focus();
@@ -1506,16 +1521,7 @@ var validator = {
 
 		if (o.value==0) return true;
 
-		for(var i=0; i<o.value.length; i++){		//is_number
-			if (o.value.charAt(i)<'0' || o.value.charAt(i)>'9'){			
-				alert('<#JS_validrange#> ' + min + ' <#JS_validrange_to#> ' + max);
-				o.focus();
-				o.select();
-				return false;
-			}
-		}
-
-		if(o.value<min || o.value>max) {
+		if(isNaN(o.value) || o.value < min || o.value > max) {
 			alert('<#JS_validrange#> ' + min + ' <#JS_validrange_to#> ' + max + '.');
 			o.value = def;
 			o.focus();
@@ -1528,6 +1534,19 @@ var validator = {
 				o.value="0";
 			return true;
 		}
+	},
+
+	rangeFloat: function(o, _min, _max, def){
+
+		if(isNaN(o.value) || o.value <= _min || o.value > _max) {
+			alert('<#JS_validrange#> ' + min + ' <#JS_validrange_to#> ' + max + '.');
+			o.value = def;
+			o.focus();
+			o.select();
+			return false;
+		}
+
+		return true;
 	},
 
 	ssidChar: function(ch){
@@ -1862,10 +1881,19 @@ var validator = {
 		return true;
 	},
 
+	ipv4_addr: function(_value) {
+		//ip address accept is 0.0.0.0~255.255.255.255
+		var ipformat  = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+		if((ipformat.test(_value)))
+			return true;
+		else
+			return false;
+	},
+
 	safeName: function(obj){
 		if (obj.value.length == 0) return true;
 
-		var re = new RegExp("^[a-zA-Z0-9a-zA-Z0-9\-\_ ]+$","gi");
+		var re = new RegExp(/^[a-zA-Z0-9a-zA-Z0-9\:\-\_ ]+$/gi);
 		if(re.test(obj.value)){
 			return true;
 		}else{

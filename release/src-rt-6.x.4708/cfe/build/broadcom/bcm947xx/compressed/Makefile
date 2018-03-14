@@ -113,6 +113,10 @@ else ifeq ($(PATYPE), 5003)
 	CFE_BIN_FILE := cfe_rt-ac68u_v2_5003.bin
 endif
 endif
+ifeq ($(RT4GAC68U), 1)
+	CFE_BIN_FILE := cfe_4g-ac68u_5003_c0.bin
+endif
+
 
 ifeq ($(R6300V2), 1)
 	CFE_BIN_FILE := cfe_r6300_v2.bin
@@ -186,6 +190,10 @@ ifeq ($(R6300V2), 1)
 endif
 endif
 endif
+ifeq ($(RT4GAC68U), 1)
+	../../../../../ctools/nvserial -i cfez.bin -o cfe_4g-ac68u_5003_c0.bin -s 00 4g-ac68u_5003_c0_nvram.txt
+	cp cfe_4g-ac68u_5003_c0.bin ../../../..
+endif
 
 ifeq ($(R6300V2), 1)
 	@if [ "$(CFEZ_MAXSIZE)" != "" ]; then \
@@ -222,6 +230,13 @@ ifeq ($(BUILD_NAME), RP-AC68U)
 		fi ; \
 	fi
 endif
+endif
+ifeq ($(RT4GAC68U), 1)
+	@if [ "$(CFEZ_MAXSIZE)" != "" ]; then \
+		if [ "`wc -c < $(CFE_BIN_FILE)`" -gt "$(CFEZ_MAXSIZE)" ]; then \
+			echo "*** ERROR *** : cfe_4g-ac68u.bin bootrom image size: `wc -c < cfe_4g-ac68u.bin` exceeds limit: $(CFEZ_MAXSIZE)"; \
+		fi ; \
+	fi
 endif
 
 # Link the loader and the kernel binary together

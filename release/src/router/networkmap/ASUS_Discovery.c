@@ -59,6 +59,8 @@ int ASUS_Discovery()
     if (setsockopt(a_socket, SOL_SOCKET, SO_REUSEADDR, &reuseaddr, sizeof(int)) < 0)
     {
         myAsusDiscoveryDebugPrint("setsockopt: SO_REUSEADDR failed\n");
+	close(a_socket);
+	a_socket = 0;
         return 0;
     }
 
@@ -180,13 +182,13 @@ int ASUS_Discovery()
         lan_gateway = inet_addr(nvram_safe_get("lan_gateway"));
 
         char asus_device_buf[128] = {0};
-        char asus_device_list_buf[2048] = {0};
+        char asus_device_list_buf[2049] = {0};
         int getRouterIndex;
 
-        for (getRouterIndex = 0; getRouterIndex < a_GetRouterCount; getRouterIndex++)
+        for (getRouterIndex = 0; getRouterIndex < a_GetRouterCount && getRouterIndex < MAX_SEARCH_ROUTER; getRouterIndex++)
         {
                 ip_addr_t = inet_addr(searchRouterInfo[getRouterIndex].routerIPAddress);
-                sprintf(asus_device_buf, "<%d>%s>%s>%s>%d>%s>%s>%d",
+                snprintf(asus_device_buf, sizeof(asus_device_buf), "<%d>%s>%s>%s>%d>%s>%s>%d",
                 3,
                 searchRouterInfo[getRouterIndex].routerProductID,
                 searchRouterInfo[getRouterIndex].routerIPAddress,
@@ -196,7 +198,15 @@ int ASUS_Discovery()
                 searchRouterInfo[getRouterIndex].routerSubMask,
                 searchRouterInfo[getRouterIndex].routerOperationMode
                 );
-                strcat(asus_device_list_buf, asus_device_buf);
+                if ((sizeof(asus_device_list_buf) - strlen(asus_device_list_buf)) > strlen(asus_device_buf))
+                {
+                    strncat(asus_device_list_buf, asus_device_buf, strlen(asus_device_buf));
+                }
+                else
+                {
+                    iRet = 1;
+                    break;
+                }
         }
    	nvram_set("asus_device_list", asus_device_list_buf);
  
@@ -285,8 +295,10 @@ void PROCESS_UNPACK_GET_INFO(char *pbuf, struct sockaddr_in from_addr)
     memcpy(searchRouterInfo[a_GetRouterCount].routerProductID,       get_discovery_info.ProductID,         32);
     memcpy(searchRouterInfo[a_GetRouterCount].routerFirmwareVersion, get_discovery_info.FirmwareVersion,   16);
 	memcpy(searchRouterInfo[a_GetRouterCount].routerMacAddress,      get_discovery_info.MacAddress,        6);
-    searchRouterInfo[a_GetRouterCount].routerOperationMode =  get_discovery_info.OperationMode;
+    searchRouterInfo[a_GetRouterCount].routerOperationMode =  get_discovery_info.sw_mode;
+#ifdef WCLIENT
     searchRouterInfo[a_GetRouterCount].routerRegulation =     get_discovery_info.Regulation;
+#endif
     
     char cTemp[512] = {0};
     myAsusDiscoveryDebugPrint("********************* Search a Router ********************");

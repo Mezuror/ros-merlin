@@ -20,6 +20,7 @@ endif
 
 ifeq ($(RTCONFIG_QCA),y)
 CFLAGS += -I./sysdeps/qca -I$(TOP)/wireless_tools/ -DWE_NOLIBM
+CFLAGS += $(if $(RTCONFIG_SOC_IPQ8064),-DSMP)
 endif
 
 ifeq ($(RTCONFIG_BCMWL6),y)
@@ -61,11 +62,16 @@ ifeq ($(RTCONFIG_BCM7)$(RTCONFIG_HSPOT),y)
 CFLAGS += -DD11AC_IOTYPES
 endif
 
+ifeq ($(or $(RTAC68A),$(RT4GAC68U)),y)
+CFLAGS += -DRTAC68U
+endif
+
 OBJS = shutils.o linux_timer.o defaults.o model.o rtstate.o boardapi.o
 OBJS += misc.o version.o files.o strings.o process.o 
-OBJS += bin_sem_asus.o semaphore.o pids.o notify_rc.o discover.o
+OBJS += bin_sem_asus.o semaphore.o pids.o $(if $(wildcard notify_rc.c),notify_rc.o,prebuild/notify_rc.o) discover.o
 OBJS += base64.o
 OBJS += nvparse.o
+OBJS += scripts.o
 ifeq ($(RTCONFIG_BCM7),y)
 OBJS += et_linux.o bcmwifi_channels.o
 else ifeq ($(RTCONFIG_HSPOT),y)
@@ -94,7 +100,14 @@ endif
 else ifeq ($(RTCONFIG_QCA),y)
 # Qualcomm Atheros
 OBJS += $(TOP)/wireless_tools/iwlib.o
-OBJS += flash_mtd.o api-qca.o qca8337.o
+OBJS += flash_mtd.o api-qca.o 
+ifeq ($(or $(RTCONFIG_SWITCH_RTL8370M_PHY_QCA8033_X2),$(RTCONFIG_SWITCH_RTL8370MB_PHY_QCA8033_X2)),y)
+OBJS += qca8033_rtl8370m.o mdio.o
+else ifeq ($(RTCONFIG_SOC_IPQ40XX),y)
+OBJS += ipq40xx.o
+else
+OBJS += qca8337.o
+endif
 else
 # Broadcom
 OBJS += wl.o wl_linux.o
@@ -114,12 +127,24 @@ endif
 
 ifeq ($(RTCONFIG_USB),y)
 OBJS += usb.o
-OBJS += $(TOP)/busybox/util-linux/volume_id/ext.o
-OBJS += $(TOP)/busybox/util-linux/volume_id/util2.o
-OBJS += $(TOP)/busybox/util-linux/volume_id/fat.o
-OBJS += $(TOP)/busybox/util-linux/volume_id/ntfs.o
-OBJS += $(TOP)/busybox/util-linux/volume_id/linux_swap.o
-OBJS += $(if $(HFS),$(TOP)/busybox/util-linux/volume_id/hfs.o)
+
+ID_CFLAGS += -I$(TOP)/busybox/include
+ID_CFLAGS += -I$(TOP)/busybox/util-linux/volume_id
+ID_CFLAGS += -include $(TOP)/busybox/include/autoconf.h
+ID_CFLAGS += -D_GNU_SOURCE -DNDEBUG -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+#ID_CFLAGS += -fdata-sections -ffunction-sections
+ID_OBJS  = $(TOP)/busybox/util-linux/volume_id/util.o
+ID_OBJS += $(TOP)/busybox/util-linux/volume_id/linux_swap.o
+ID_OBJS += $(TOP)/busybox/util-linux/volume_id/ext.o
+ID_OBJS += $(TOP)/busybox/util-linux/volume_id/fat.o
+ID_OBJS += $(TOP)/busybox/util-linux/volume_id/ntfs.o
+ID_OBJS += $(if $(HFS),$(TOP)/busybox/util-linux/volume_id/hfs.o)
+ID_OBJS += $(if $(HFS),$(patsubst %.c,%.o,$(wildcard $(TOP)/busybox/libbb/hash_md5.c)))
+ID_OBJS += $(if $(HFS),$(patsubst %.c,%.o,$(wildcard $(TOP)/busybox/libbb/bb_bswap_64.c)))
+ID_OBJS += volume_id.o
+#OBJS += volume_id.lib.o
+OBJS += $(notdir $(ID_OBJS))
+
 ifeq ($(RTCONFIG_USB_MODEM),y)
 OBJS += at_cmd.o
 endif
@@ -142,19 +167,20 @@ OBJS	+= bled.o
 endif
 
 ifeq ($(RTCONFIG_QCA_PLC_UTILS),y)
-OBJS	+= plc_utils.o
+OBJS	+= $(if $(wildcard plc_utils.c),plc_utils.o,prebuild/plc_utils.o)
 endif
 
 ifeq ($(RTCONFIG_TCODE),y)
-OBJS    += tcode.o
+OBJS	+= $(if $(wildcard tcode.c),tcode.o,prebuild/tcode.o)
 endif
 
-ifeq ($(RTCONFIG_BCM5301X_TRAFFIC_MONITOR),y)
-ifeq ($(wildcard ./prebuild/private.o),)
-CFLAGS += -DMISSING_PRIVATE
-else
-OBJS    += private.o
+ifeq ($(CONFIG_BCMWL5),y)
+ifneq ($(RTCONFIG_DSL),y)
+CFLAGS += -DTRX_NEW
 endif
+OBJS += $(if $(wildcard private.c),private.o,prebuild/private.o)
+OBJS += wlif_utils.o UdpLib.o bcmutils.o
+OBJS += bcmwifi_channels.o
 endif
 
 vpath %.c sysdeps $(SRCBASE)/shared/ $(WLAN_ComponentSrcDirs)
@@ -171,11 +197,6 @@ endif
 all: libshared.so libshared.a
 
 
-ifeq ($(CONFIG_BCMWL5),y)
-OBJS += wlif_utils.o UdpLib.o bcmutils.o
-OBJS += bcmwifi_channels.o
-endif
-
 libshared.so: $(OBJS)
 	@echo " [shared] LD $@"
 	@$(LD) $(LDFLAGS) -shared -o $@ $^
@@ -186,8 +207,7 @@ libshared.so: $(OBJS)
 libshared.a: $(OBJS)
 	@echo " [shared] AR $@"
 	@rm -f $@
-	@$(AR) cruv $@ $^
-
+	@$(AR) cru $@ $^
 
 install: all
 	@echo " [shared] Installing as $(INSTALLDIR)/usr/lib/libshared.so"
@@ -195,22 +215,21 @@ install: all
 	@install -m 755 libshared.so $(INSTALLDIR)/usr/lib
 	@$(STRIP) $(INSTALLDIR)/usr/lib/libshared.so
 
-
 clean:
-	rm -f *.o *.so *.a .*.depend sysdeps/*.o sysdeps/broadcom/*.o sysdeps/ralink/*.o sysdeps/qtn/*.o
+	rm -f *.o *.so *.a .*.depend *.prep sysdeps/*.o sysdeps/broadcom/*.o sysdeps/ralink/*.o sysdeps/qtn/*.o
 
-ifeq ($(RTCONFIG_TCODE),y)
-ifneq ($(wildcard ./prebuild/tcode.o),)
-tcode.o:
-	@-cp -f ./prebuild/tcode.o .
-endif
-endif
+prebuild/%.o:
+	#nothing to do...
 
-ifeq ($(RTCONFIG_BCM5301X_TRAFFIC_MONITOR),y)
-ifneq ($(wildcard ./prebuild/private.o),)
-private.o:
-	@-cp -f ./prebuild/private.o .
-endif
+ifeq ($(RTCONFIG_USB),y)
+vpath %.c $(sort $(dir $(ID_OBJS)))
+
+$(notdir $(ID_OBJS)): %.o: %.c .%.depend
+	@echo " [shared] CC $@"
+	@$(CC) $(CFLAGS) $(ID_CFLAGS) -o $@ -c $<
+
+$(patsubst %.o,.%.depend,$(notdir $(ID_OBJS))): .%.depend: %.c
+	@$(CC) $(CFLAGS) $(ID_CFLAGS) -M $< > $@
 endif
 
 %.o: %.c .%.depend
@@ -223,5 +242,10 @@ endif
 .%.depend: %.c
 	@$(CC) $(CFLAGS) -M $< > $@
 
-#-include $(OBJS:%.o=.%.depend)
+.defaults.depend .tcode.depend: .%.depend: %.c %.prep
+	@$(CC) $(CFLAGS) -M $< > $@
 
+%.prep: %.c
+	@$(CC) $(CFLAGS) -E $< > $@
+
+-include $(OBJS:%.o=.%.depend)

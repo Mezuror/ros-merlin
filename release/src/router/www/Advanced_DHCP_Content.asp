@@ -61,7 +61,7 @@
 }
 </style>
 <script>
-var dhcp_staticlist_array = '<% nvram_get("dhcp_staticlist"); %>';
+var dhcp_staticlist_array = "<% nvram_get("dhcp_staticlist"); %>";
 
 if(pptpd_support){
 	var pptpd_clients = '<% nvram_get("pptpd_clients"); %>';
@@ -98,6 +98,7 @@ if(yadns_support){
 var backup_mac = "";
 var backup_ip = "";
 var backup_name = "";
+var sortCol, sortMethod;
 
 function initial(){
 	show_menu();
@@ -113,8 +114,13 @@ function initial(){
   				}
 			}
 	}
-	//}Viz 2011.10
-	setTimeout("showdhcp_staticlist();", 100);
+	if (((sortCol = cookie.get('dhcp_sortcol')) != null) && ((sortMethod = cookie.get('dhcp_sortmet')) != null)) {
+		document.getElementById("col" + sortCol).style.borderBottom="2px solid #fc0";
+		merlinWS.sortMethod = parseInt(sortMethod);
+		setTimeout("merlinWS.sortStaticIpList(sortCol);", 100);
+	} else {
+		setTimeout("merlinWS.sortStaticIpList(1);", 100);
+	}
 	setTimeout("showDropdownClientList('setClientIP', 'mac>ip>name', 'all', 'ClientList_Block_PC', 'pull_arrow', 'all');", 1000);
 
 	if(pptpd_support){
@@ -193,7 +199,7 @@ function addRow_Group(upper){
 		//Viz check same rule  //match(ip or mac) is not accepted
 		if(item_num >=2){
 			for(i=0; i<rule_num; i++){
-					if(document.form.dhcp_staticmac_x_0.value.toLowerCase() == document.getElementById('dhcp_staticlist_table').rows[i].cells[0].innerHTML.toLowerCase()){
+					if(document.form.dhcp_staticmac_x_0.value.toUpperCase() == document.getElementById('dhcp_staticlist_table').rows[i].cells[0].innerHTML.toUpperCase()){
 						alert("<#JS_duplicate#>");
 						document.form.dhcp_staticmac_x_0.focus();
 						document.form.dhcp_staticmac_x_0.select();
@@ -208,6 +214,7 @@ function addRow_Group(upper){
 			}
 		}
 
+		document.form.dhcp_staticmac_x_0.value = document.form.dhcp_staticmac_x_0.value.toUpperCase();
 		addRow(document.form.dhcp_staticmac_x_0 ,1);
 		addRow(document.form.dhcp_staticip_x_0, 0);
 		addRow(document.form.dhcp_staticname_x_0, 0);
@@ -252,7 +259,7 @@ function edit_Row(r){
 	backup_mac = document.form.dhcp_staticmac_x_0.value;
 	backup_ip = document.form.dhcp_staticip_x_0.value;
 	backup_name = document.form.dhcp_staticname_x_0.value;
- 	del_Row(r);
+	del_Row(r);
 	document.form.dhcp_staticmac_x_0.focus();
 }
 
@@ -282,7 +289,7 @@ function showdhcp_staticlist(){
 			var userIconBase64 = "NoIcon";
 			var clientName, deviceType, deviceVender;
 
-			var clientMac = dhcp_staticlist_col[0];
+			var clientMac = dhcp_staticlist_col[0].toUpperCase();
 			var clientIP = dhcp_staticlist_col[1];
 			if(clientList[clientMac]) {
 				clientName = (clientList[clientMac].nickName == "") ? clientList[clientMac].name : clientList[clientMac].nickName;
@@ -297,25 +304,25 @@ function showdhcp_staticlist(){
 			code += '<td width="32%" align="center" title="' + clientMac +'">';
 			code += '<table style="width:100%;"><tr><td style="width:20%;height:56px;border:0px;">';
 			if(clientList[clientMac] == undefined) {
-				code += '<div class="clientIcon type0" onClick="popClientListEditTable(\'' + clientMac + '\', this, \'' + clientName + '\', \'' + clientIP + '\', \'DHCP\')"></div>';
+				code += '<div class="clientIcon type0" onClick="popClientListEditTable(&quot;' + clientMac + '&quot;, this, &quot;' + clientName + '&quot;, &quot;' + clientIP + '&quot;, &quot;DHCP&quot;)"></div>';
 			}
 			else {
 				if(usericon_support) {
 					userIconBase64 = getUploadIcon(clientMac.replace(/\:/g, ""));
 				}
 				if(userIconBase64 != "NoIcon") {
-					code += '<div style="text-align:center;" onClick="popClientListEditTable(\'' + clientMac + '\', this, \'' + clientName + '\', \'' + clientIP + '\', \'DHCP\')"><img class="imgUserIcon_card" src="' + userIconBase64 + '"></div>';
+					code += '<div style="text-align:center;" onClick="popClientListEditTable(&quot;' + clientMac + '&quot;, this, &quot;' + clientName + '&quot;, &quot;' + clientIP + '&quot;, &quot;DHCP&quot;)"><img class="imgUserIcon_card" src="' + userIconBase64 + '"></div>';
 				}
 				else if(deviceType != "0" || deviceVender == "") {
-					code += '<div class="clientIcon type' + deviceType + '" onClick="popClientListEditTable(\'' + clientMac + '\', this, \'' + clientName + '\', \'' + clientIP + '\', \'DHCP\')"></div>';
+					code += '<div class="clientIcon type' + deviceType + '" onClick="popClientListEditTable(&quot;' + clientMac + '&quot;, this, &quot;' + clientName + '&quot;, &quot;' + clientIP + '&quot;, &quot;DHCP&quot;)"></div>';
 				}
 				else if(deviceVender != "" ) {
 					var venderIconClassName = getVenderIconClassName(deviceVender.toLowerCase());
 					if(venderIconClassName != "" && !downsize_4m_support) {
-						code += '<div class="venderIcon ' + venderIconClassName + '" onClick="popClientListEditTable(\'' + clientMac + '\', this, \'' + clientName + '\', \'' + clientIP + '\', \'DHCP\')"></div>';
+						code += '<div class="venderIcon ' + venderIconClassName + '" onClick="popClientListEditTable(&quot;' + clientMac + '&quot;, this, &quot;' + clientName + '&quot;, &quot;' + clientIP + '&quot;, &quot;DHCP&quot;)"></div>';
 					}
 					else {
-						code += '<div class="clientIcon type' + deviceType + '" onClick="popClientListEditTable(\'' + clientMac + '\', this, \'' + clientName + '\', \'' + clientIP + '\', \'DHCP\')"></div>';
+						code += '<div class="clientIcon type' + deviceType + '" onClick="popClientListEditTable(&quot;' + clientMac + '&quot;, this, &quot;' + clientName + '&quot;, &quot;' + clientIP + '&quot;, &quot;DHCP&quot;)"></div>';
 					}
 				}
 			}
@@ -511,13 +518,13 @@ function showLANIPList(){
 		if(clientObj.ip == "offline") continue;
 		if(clientObj.name.length > 30) clientObj.name = clientObj.name.substring(0, 28) + "..";
 
-		htmlCode += '<a><div onmouseover="over_var=1;" onmouseout="over_var=0;" onclick="setClientIP(\'';
+		htmlCode += '<a><div onmouseover="over_var=1;" onmouseout="over_var=0;" onclick="setClientIP(&quot;';
 		htmlCode += clientObj.mac;
-		htmlCode += '\', \'';
+		htmlCode += '&quot;, &quot;';
 		htmlCode += clientObj.ip;
-                htmlCode += '\', \'';
+                htmlCode += '&quot;, &quot;';
                 htmlCode += clientObj.name;
-		htmlCode += '\');"><strong>';
+		htmlCode += '&quot;);"><strong>';
 		htmlCode += clientObj.ip + '</strong>&nbsp;&nbsp;(' + clientObj.name + ')';
 		htmlCode += '</strong></div></a><!--[if lte IE 6.5]><iframe class="hackiframe2"></iframe><![endif]-->';
 	}
@@ -622,6 +629,9 @@ var merlinWS = {
 	sortStaticIpList: function(colIndex) {
 		var theList = merlinWS.parseAsusList(dhcp_staticlist_array);
 
+		cookie.set('dhcp_sortcol', colIndex);
+		cookie.set('dhcp_sortmet', merlinWS.sortMethod);
+
 		if (colIndex == 1) {
 			theList.sort(merlinWS.sortBy(colIndex, true, null, {isIp: true}));
 		} else {
@@ -723,7 +733,6 @@ jQuery(function($) {
 
 		// NOTE: if using borderTop Chrome has a strange bug that due to the colspan above makes it display incorrectly!
 		$(staticHeaderTable).find('th:eq(0)').on('click', function(e) {
-			var newIndx;
 
 			merlinWS.sortStaticIpList(0);
 			$(staticHeaderTable).find('th').css({borderBottom: 'none'});
@@ -734,14 +743,12 @@ jQuery(function($) {
 			merlinWS.sortStaticIpList(1);
 			$(staticHeaderTable).find('th').css({borderBottom: 'none'});
 			$(e.target).closest('th').css({borderBottom: '2px solid #fc0'});
-			merlinWS.firstCol_newSortIndex = 0;  //reset this
 		});
 
 		$(staticHeaderTable).find('th:eq(2)').on('click', function(e) {
 			merlinWS.sortStaticIpList(2);
 			$(staticHeaderTable).find('th').css({borderBottom: 'none'});
 			$(e.target).closest('th').css({borderBottom: '2px solid #fc0'});
-			merlinWS.firstCol_newSortIndex = 0;  //reset this
 		});
 	}
 });
@@ -896,14 +903,14 @@ jQuery(function($) {
                                 </td>
                           </tr>
 			  <tr>
-				<th>Forward local domain queries to upstream DNS</th>
+				<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,5);">Forward local domain queries to upstream DNS</a></th>
 				<td colspan="2" style="text-align:left;">
 					<input type="radio" value="1" name="lan_dns_fwd_local"  onclick="return change_common_radio(this, 'LANHostConfig', 'lan_dns_fwd_local', '1')" <% nvram_match("lan_dns_fwd_local", "1", "checked"); %> /><#checkbox_Yes#>
 					<input type="radio" value="0" name="lan_dns_fwd_local"  onclick="return change_common_radio(this, 'LANHostConfig', 'lan_dns_fwd_local', '0')" <% nvram_match("lan_dns_fwd_local", "0", "checked"); %> /><#checkbox_No#>
 				</td>
 			  </tr>
 			  <tr id="dnssec_tr" style="display:none;">
-     				<th>Enable DNSSEC support</th>
+				<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(50,6);">Enable DNSSEC support</a></th>
 				<td colspan="2" style="text-align:left;">
 					<input type="radio" value="1" name="dnssec_enable" <% nvram_match("dnssec_enable", "1", "checked"); %> /><#checkbox_Yes#>
 					<input type="radio" value="0" name="dnssec_enable" <% nvram_match("dnssec_enable", "0", "checked"); %> /><#checkbox_No#>
@@ -941,9 +948,9 @@ jQuery(function($) {
 			  	</thead>
 
 			  	<tr>
-					<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(5,10);"><#MAC_Address#></a></th>
-					<th><#IPConnection_ExternalIPAddress_itemname#></th>
-					<th>Hostname</th>
+					<th id="col0"><a class="hintstyle" href="javascript:void(0);" onClick="openHint(5,10);"><#MAC_Address#></a></th>
+					<th id="col1"><#IPConnection_ExternalIPAddress_itemname#></th>
+					<th id="col2">Hostname</th>
 					<th><#list_add_delete#></th>
 			  	</tr>
 			  	<tr>
@@ -957,7 +964,7 @@ jQuery(function($) {
             				<input type="text" class="input_15_table" maxlength="15" name="dhcp_staticip_x_0" onkeypress="return validator.isIPAddr(this,event)" autocorrect="off" autocapitalize="off">
             			</td>
             			<td width="24%">
-					<input type="text" class="input_15_table" maxlenght="30" onkeypress="return is_alphanum(this, event);" name="dhcp_staticname_x_0" autocorrect="off" autocapitalize="off">
+					<input type="text" class="input_15_table" maxlenght="30" onKeyPress="return validator.isString(this, event);" name="dhcp_staticname_x_0" autocorrect="off" autocapitalize="off">
 				</td>
 				<td width="16%">
 					<div>

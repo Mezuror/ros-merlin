@@ -15,6 +15,10 @@ dataf="$apps_local_space/spn_asus.dat"
 modem_prefix="test_modem_"
 
 
+if [ "$modem_type" == "" -o  "$modem_type" == "ecm" -o "$modem_type" == "rndis" -o "$modem_type" == "asix" -o "$modem_type" == "ncm" ]; then
+	exit 0
+fi
+
 act_node=
 #if [ "$modem_type" = "tty" -o "$modem_type" = "mbim" ]; then
 #	if [ "$modem_type" = "tty" -a "$modem_vid" = "6610" ]; then # e.q. ZTE MF637U
@@ -28,7 +32,7 @@ act_node=
 
 modem_act_node=`nvram get $act_node`
 if [ -z "$modem_act_node" ]; then
-	find_modem_node.sh
+	/usr/sbin/find_modem_node.sh
 
 	modem_act_node=`nvram get $act_node`
 	if [ -z "$modem_act_node" ]; then
@@ -43,7 +47,7 @@ else
 	modem_imsi=`nvram get usb_modem_act_imsi |cut -c '1-6' 2>/dev/null`
 fi
 if [ -z "$modem_imsi" ]; then
-	modem_status.sh imsi
+	/usr/sbin/modem_status.sh imsi
 	modem_imsi=`nvram get usb_modem_act_imsi |cut -c '1-6' 2>/dev/null`
 	if [ -z "$modem_imsi" ]; then
 		echo "Can't get IMI of SIM!"
@@ -74,15 +78,15 @@ if [ -z "$content" ]; then
 	exit 3
 fi
 
-compare=`echo "$content" |awk '{FS=","; print $1}' 2>/dev/null`
-modem_isp=`echo "$content" |awk '{FS=","; print $2}' 2>/dev/null`
-modem_spn=`echo "$content" |awk '{FS=","; print $7}' 2>/dev/null`
+compare=`echo "$content" |awk 'BEGIN{FS=","}{print $1}' 2>/dev/null`
+modem_isp=`echo "$content" |awk 'BEGIN{FS=","}{print $2}' 2>/dev/null`
+modem_spn=`echo "$content" |awk 'BEGIN{FS=","}{print $7}' 2>/dev/null`
 [ -z "$modem_spn" ] && modem_spn="$modem_isp"
-modem_apn=`echo "$content" |awk '{FS=","; print $6}' 2>/dev/null`
-modem_dial=`echo "$content" |awk '{FS=","; print $3}' 2>/dev/null`
-modem_user=`echo "$content" |awk '{FS=","; print $4}' 2>/dev/null`
-modem_pass=`echo "$content" |awk '{FS=","; print $5}' 2>/dev/null`
-line=`echo "$content" |awk '{FS=","; print $8}' 2>/dev/null`
+modem_apn=`echo "$content" |awk 'BEGIN{FS=","}{print $6}' 2>/dev/null`
+modem_dial=`echo "$content" |awk 'BEGIN{FS=","}{print $3}' 2>/dev/null`
+modem_user=`echo "$content" |awk 'BEGIN{FS=","}{print $4}' 2>/dev/null`
+modem_pass=`echo "$content" |awk 'BEGIN{FS=","}{print $5}' 2>/dev/null`
+line=`echo "$content" |awk 'BEGIN{FS=","}{print $8}' 2>/dev/null`
 
 modem_country_num=`echo $modem_imsi |cut -c 1-3 2>/dev/null`
 if [ -z "$modem_country_num" ]; then

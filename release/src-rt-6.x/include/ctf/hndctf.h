@@ -99,6 +99,9 @@
 	((unsigned char *)&addr)[2], \
 	((unsigned char *)&addr)[3]
 
+#ifdef CTF_IPV6
+#define FRAG_IPV6_UDP_PROTO	0xF6
+#endif
 
 #define PPPOE_ETYPE_OFFSET	12
 #define PPPOE_VER_OFFSET	14
@@ -214,6 +217,7 @@ struct ctf_conn_tuple {
 	uint32	sip[IPADDR_U32_SZ], dip[IPADDR_U32_SZ];
 	uint16	sp, dp;
 	uint8	proto;
+	uint16	sid;
 };
 
 typedef struct ctf_nat {
